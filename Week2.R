@@ -24,6 +24,24 @@ pollutantmean <- function(directory, pollutant, id= 1:332){
   }
 }
 
-complete <- function(directory, id = 1:332)
+complete <- function(directory, id = 1:332){
+  require(stringr)
+  setwd(directory)
+  
+  # total_data <-NA
+  for(i in id){
+    csvName <- paste(str_pad(i,3,pad='0'),".csv",sep='')
+    my_data <- read.csv(csvName)
+    res <- nrow(na.exclude(my_data))  #nrow count the row of the dataset
+    df <-data.frame("id" = i,"nobs" = res,  stringsAsFactors=FALSE)
+    total_data <- rbind(total_data,df)
+  }
+  final_result <- na.omit(total_data)
+  print(final_result)
+}
   #pollutantmean("D:\\Setup\\rprog_data_specdata\\specdata","nitrate",1:10)
-  pollutantmean("D:\\Setup\\rprog_data_specdata\\specdata","sulfate",1:10)
+  # pollutantmean("D:\\Setup\\rprog_data_specdata\\specdata","sulfate",1:10)
+  complete("D:\\Setup\\rprog_data_specdata\\specdata",c(2,4,8,10,12))
+  
+  
+  
