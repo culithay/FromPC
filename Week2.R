@@ -1,47 +1,48 @@
 pollutantmean <- function(directory, pollutant, id= 1:332){
-  
-  require(stringr)
-  setwd(directory)
-  
-  total_data <- NA
-  cname <- c("Date","sulfate","nitrate","ID")
+  mylist <- list.files(path = directory, pattern = ".csv")
+  result <- data.frame()
   for(i in id){
-    csvName <- paste(str_pad(i,3,pad='0'),".csv",sep='')
-    my_data <- read.csv(csvName)
+    my_data <- read.csv(paste(directory,mylist[i],sep=''))
     total_data <- rbind(total_data,my_data)
   }
   
-  colnames(total_data) <- cname
   if(pollutant =="sulfate"){
-    new_data <- na.omit(total_data$sulfate)
-    result <- mean(new_data)
-    print(result)
+    result <- mean(na.omit(total_data$sulfate))
   }
   else if(pollutant =="nitrate"){
-    new_data <- na.omit(total_data$nitrate)
-    result <- mean(new_data)
-    print(result)
+    result <- mean(na.omit(total_data$nitrate))
   }
+  return(result)
 }
 
 complete <- function(directory, id = 1:332){
-  require(stringr)
-  setwd(directory)
-  
-  # total_data <-NA
+  mylist <- list.files(path = directory, pattern = ".csv")
+  result <- data.frame()
   for(i in id){
-    csvName <- paste(str_pad(i,3,pad='0'),".csv",sep='')
-    my_data <- read.csv(csvName)
+    my_data <- read.csv(paste(directory,mylist[i],sep=""))
     res <- nrow(na.exclude(my_data))  #nrow count the row of the dataset
-    df <-data.frame("id" = i,"nobs" = res,  stringsAsFactors=FALSE)
-    total_data <- rbind(total_data,df)
+    df <- data.frame("id" = i,"nobs" = res,  stringsAsFactors=FALSE)
+    result <- rbind(result,df)
   }
-  final_result <- na.omit(total_data)
-  print(final_result)
+  return(result)
+}
+
+corr <- function(directory, threshold = 0){
+  mylist <- list.files(path = directory, pattern = ".csv")
+  df <- complete(directory)
+  ids <- df[df["nobs"] > threshold, ]$id
+  corrr <- numeric()
+  for(i in ids){
+    my_data <- read.csv(paste(directory,mylist[i],sep=""))
+    dff <- my_data[complete.cases(my_data),]
+    corrr <- c(corrr,cor(dff$sulfate,dff$nitrate))
+  }
+  return(corrr)
 }
   #pollutantmean("D:\\Setup\\rprog_data_specdata\\specdata","nitrate",1:10)
   # pollutantmean("D:\\Setup\\rprog_data_specdata\\specdata","sulfate",1:10)
-  complete("D:\\Setup\\rprog_data_specdata\\specdata",c(2,4,8,10,12))
-  
-  
+  # complete("D:\\Setup\\rprog_data_specdata\\specdata",30:25)
+  # cr <- corr("D:\\Setup\\rprog_data_specdata\\specdata\\",150)
+  # head(cr)
+  # summary(cr)
   
